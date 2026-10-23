@@ -1,0 +1,210 @@
+name: Release (Work In Progress)
+
+# Builds Codo installers for Linux, Windows and macOS (arm64 + Intel) and, on a
+# version tag (v*), attaches them all to a GitHub pre-release.
+#   git tag v0.1.0 && git push origin v0.1.0
+# You can also run it by hand (Actions tab -> Run workflow); a manual run only
+# produces downloadable workflow artifacts, it does not create a Release.
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PYTHON_VERSION: '3.12'
+
+jobs:
+  build:
+    name: Build ${{ matrix.label }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { label: Linux-x64,   os: ubuntu-22.04, node-arch: '' }
+          - { label: Windows-x64, os: windows-2022, node-arch: '' }
+          - { label: macOS-arm64, os: macos-14,     node-arch: '' }
+          # Intel build: Apple-silicon runner + x64 Node (same trick Pulsar uses).
+          - { label: macOS-x64,   os: macos-14,     node-arch: x64 }
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: '.nvmrc'
+          architecture: ${{ matrix.node-arch }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      # Python 3.12 dropped distutils, which node-gyp needs.
+      - name: Install Python setuptools
+        run: python3 -m pip install setuptools
+
+      - name: Install Yarn
+        run: npm install -g yarn
+
+      - name: Linux build dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libsecret-1-dev libxkbfile-dev \
+            libx11-dev libxss-dev libgdk-pixbuf2.0-dev libgtk-3-dev libasound2-dev \
+            rpm fakeroot xvfb libnss3 libatk1.0-0 libatk-bridge2.0-0 libgbm1
+
+      - name: Point node-gyp at the right Python (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          $pythonPath = (Get-Command python3)[0].Source
+          echo "PYTHON=$pythonPath" >> $env:GITHUB_ENV
+
+      - name: Install Windows 10 SDK (Windows)
+        if: runner.os == 'Windows'
+        working-directory: 'C:\Program Files (x86)\Microsoft Visual Studio\Installer'
+        run: |
+          .\vs_installer.exe modify --installPath "C:\Program Files\Microsoft Visual Studio\2022\Enterprise" --add Microsoft.VisualStudio.Component.Windows10SDK.19041 --quiet --norestart --nocache | Out-Host
+
+      - name: Set version from tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        run: |
+          VER="${GITHUB_REF_NAME#v}"
+          node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('package.json','utf8'));p.version=process.argv[1];fs.writeFileSync('package.json',JSON.stringify(p,null,2)+'\n')" "$VER"
+          echo "Version set to $VER"
+
+      - name: Install dependencies
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60
+        with:
+          timeout_minutes: 40
+          max_attempts: 3
+          retry_on: error
+          shell: bash
+          command: yarn install --ignore-engines
+          on_retry_command: rm -rf node_modules
+
+      - name: Rebuild native modules for Electron
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60
+        with:
+          timeout_minutes: 40
+          max_attempts: 3
+          retry_on: error
+          shell: bash
+          command: yarn build
+
+      # `yarn build` alone has left better-sqlite3 unbuilt for Electron before,
+      # which crashes the editor window on start. Rebuilding it explicitly is
+      # cheap and harmless if it was already fine.
+      - name: Rebuild better-sqlite3 for Electron
+        shell: bash
+        run: yarn electron-rebuild -f -w better-sqlite3
+
+      - name: Build ppm (package manager)
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60
+        with:
+          timeout_minutes: 40
+          max_attempts: 3
+          retry_on: error
+          shell: bash
+          command: yarn build:apm
+
+      # Unsigned unless signing secrets exist. Unsigned builds work, but macOS
+      # Gatekeeper and Windows SmartScreen will warn (see README).
+      - name: Build installers
+        shell: bash
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: ${{ secrets.CSC_LINK && 'true' || 'false' }}
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          APPLEID: ${{ secrets.APPLEID }}
+          APPLEID_PASSWORD: ${{ secrets.APPLEID_PASSWORD }}
+          TEAM_ID: ${{ secrets.TEAM_ID }}
+        run: yarn dist
+
+      - name: Smoke test - editor window starts (Linux)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          BIN=$(find binaries/linux-unpacked -maxdepth 1 -type f -executable -name pulsar | head -1)
+          echo "binary: $BIN"
+          test -n "$BIN"
+          CODO_BENCH=/tmp/bench.json timeout 180 xvfb-run -a "$BIN" --no-sandbox --disable-gpu -f || true
+          test -s /tmp/bench.json
+          node -e 'const d=JSON.parse(require("fs").readFileSync("/tmp/bench.json"));console.log("startup ms:",d.m[d.m.length-1].time,"packages:",d.p.length)'
+
+      - name: Smoke test - version (Windows)
+        if: runner.os == 'Windows'
+        continue-on-error: true
+        shell: bash
+        run: |
+          BIN=$(find binaries/win-unpacked -maxdepth 1 -name '*.exe' | head -1)
+          echo "binary: $BIN"
+          "$BIN" --version
+
+      - name: Smoke test - version (macOS)
+        if: runner.os == 'macOS'
+        continue-on-error: true
+        shell: bash
+        run: |
+          APP=$(find binaries -maxdepth 2 -name '*.app' | head -1)
+          echo "app: $APP"
+          "$APP/Contents/MacOS/$(ls "$APP/Contents/MacOS" | head -1)" --version
+
+      - name: Name files by platform and drop updater metadata
+        shell: bash
+        env:
+          LABEL: ${{ matrix.label }}
+        run: |
+          cd binaries
+          rm -f *.yml *.yaml *.blockmap
+          for f in *; do
+            [ -f "$f" ] || continue
+            mv "$f" "${LABEL}.${f// /.}"
+          done
+          ls -la
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: Codo-${{ matrix.label }}
+          path: binaries/*.*
+          if-no-files-found: error
+
+  release:
+    name: Publish GitHub pre-release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v7
+        with:
+          pattern: Codo-*
+          path: dist
+          merge-multiple: true
+
+      - name: Create or update release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          ls -la dist
+          NOTES="Work In Progress build. Unsigned: macOS needs right-click > Open (or run: xattr -dr com.apple.quarantine /Applications/Codo.app), Windows SmartScreen needs More info > Run anyway, Linux AppImage needs chmod +x."
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$TAG" dist/* --repo "$GITHUB_REPOSITORY" --clobber
+          else
+            gh release create "$TAG" dist/* --repo "$GITHUB_REPOSITORY" --title "Codo $TAG (Work In Progress)" --notes "$NOTES" --prerelease
+          fi

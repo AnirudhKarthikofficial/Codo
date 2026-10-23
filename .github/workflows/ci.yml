@@ -1,0 +1,65 @@
+name: CI (Linux build + smoke test)
+
+# Cheap check on every push/PR: does Codo install, build, and open a window?
+# (No installers here and no macOS runners, which cost 10x. Releases are in release.yml.)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  linux:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: '.nvmrc'
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Tooling and system dependencies
+        run: |
+          python3 -m pip install setuptools
+          npm install -g yarn
+          sudo apt-get update
+          sudo apt-get install -y build-essential libsecret-1-dev libxkbfile-dev \
+            libx11-dev libxss-dev libgdk-pixbuf2.0-dev libgtk-3-dev libasound2-dev \
+            xvfb libnss3 libatk1.0-0 libatk-bridge2.0-0 libgbm1
+
+      - name: Install dependencies
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60
+        with:
+          timeout_minutes: 40
+          max_attempts: 3
+          retry_on: error
+          shell: bash
+          command: yarn install --ignore-engines
+          on_retry_command: rm -rf node_modules
+
+      - name: Rebuild native modules for Electron
+        run: |
+          yarn build
+          yarn electron-rebuild -f -w better-sqlite3
+
+      - name: Build ppm
+        run: yarn build:apm
+
+      - name: Smoke test - editor window starts
+        run: |
+          CODO_BENCH=/tmp/bench.json timeout 180 xvfb-run -a node_modules/.bin/electron --no-sandbox --disable-gpu . -f || true
+          test -s /tmp/bench.json
+          node -e 'const d=JSON.parse(require("fs").readFileSync("/tmp/bench.json"));console.log("startup ms:",d.m[d.m.length-1].time,"packages:",d.p.length)'

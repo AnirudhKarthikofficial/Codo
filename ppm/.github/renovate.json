@@ -1,0 +1,12 @@
+{
+  "extends": [ "config:base", ":dependencyDashboardApproval" ],
+  "constraints": {
+    "node": "< 15"
+  },
+  "labels": [ "dependencies" ],
+  "ignorePaths": [
+    "native-module/",
+    "spec/fixtures/",
+    "templates/"
+  ]
+}
