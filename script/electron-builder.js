@@ -94,15 +94,15 @@ const ARGS = yargs(hideBin(process.argv))
   .parse();
 
 // The difference in base name matters for the app ID (which helps the OS
-// understand that PulsarNext is not the same as Pulsar), but also for other
+// understand that CodoNext is not the same as Codo), but also for other
 // reasons.
 //
-// The `pulsar-next` executable name is how it knows it's a canary release
+// The `codo-next` executable name is how it knows it's a canary release
 // channel and should use a different home directory from the stable release.
 // Same for `ppm-next`; it's identical to `ppm`, but the name of the script
 // tells it where to install packages.
 const displayName = ARGS.next ? 'CodoNext' : 'Codo';
-const baseName = ARGS.next ? 'pulsar-next' : 'pulsar';
+const baseName = ARGS.next ? 'codo-next' : 'codo';
 const ppmBaseName = ARGS.next ? 'ppm-next' : 'ppm';
 const iconName = ARGS.next ? 'beta-next' : 'beta';
 
@@ -255,7 +255,7 @@ let options = {
   ],
 
   extraResources: [
-    { from: 'pulsar.sh', to: `${baseName}.sh` },
+    { from: 'codo.sh', to: `${baseName}.sh` },
     {
       // Be selective in what we copy over to PPM’s `bin` directory. On
       // Windows, the contents of this entire folder will be available on the
@@ -273,7 +273,7 @@ let options = {
       // intact.
       to: 'app'
     },
-    { from: ICONS.png, to: 'pulsar.png' },
+    { from: ICONS.png, to: 'codo.png' },
     { from: 'LICENSE.md', to: 'LICENSE.md' }
   ],
   compression: 'normal',
@@ -364,9 +364,9 @@ let options = {
   win: {
     icon: ICONS.ico,
     extraResources: [
-      { from: ICONS.ico, to: 'pulsar.ico' },
-      { from: 'resources/win/pulsar.cmd', to: `${baseName}.cmd` },
-      { from: 'resources/win/pulsar.js', to: `${baseName}.js` },
+      { from: ICONS.ico, to: 'codo.ico' },
+      { from: 'resources/win/codo.cmd', to: `${baseName}.cmd` },
+      { from: 'resources/win/codo.js', to: `${baseName}.js` },
       { from: 'resources/win/NSIS_Licenses.txt', to: 'NSIS_Licenses.txt' },
       // Copy `ppm.cmd` to the `ppm/bin` directory, possibly renaming it
       // `ppm-next.cmd` depending on release channel.

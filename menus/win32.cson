@@ -146,6 +146,9 @@
       { label: 'Re&set Font Size', command: 'window:reset-font-size' }
       { type: 'separator' }
       { label: 'Toggle Soft &Wrap', command: 'editor:toggle-soft-wrap' }
+      { type: 'separator' }
+      { label: 'Toggle Luau Inlay Hints', command: 'codo:toggle-luau-inlay-hints' }
+      { label: 'Themes…', command: 'codo:open-themes' }
     ]
   }
 

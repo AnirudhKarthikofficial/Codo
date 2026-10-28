@@ -6,14 +6,14 @@
 
 # Usage: Takes a single argument for the architecture — either `x86_64` or
 # `ARM_64` — and “fixes” an AppImage file as emitted by `electron-builder` so
-# that it points to `pulsar.sh` internally and runs _that_ when invoked instead
+# that it points to `codo.sh` internally and runs _that_ when invoked instead
 # of the direct binary.
 #
 # This is important for a couple of reasons:
 #
 # 1. Some command-line arguments, like `--wait`, don't work properly unless
-#    they rely on `pulsar.sh` to do some work for them.
-# 2. `pulsar.sh` can intercept the `-p`/`--package` switch (signaling that the
+#    they rely on `codo.sh` to do some work for them.
+# 2. `codo.sh` can intercept the `-p`/`--package` switch (signaling that the
 #     user wants to run `ppm`) and call it more quickly than Pulsar can.
 #
 # This is pretty easy to do with an AppImage, but `electron-builder` isn't
@@ -25,7 +25,7 @@
 #
 # * Extract the AppImage (every AppImage has the ability to do this by itself).
 # * Modify the `AppRun` script whose purpose is to invoke the Electron
-#   executable; modify it to invoke our `pulsar.sh` script instead.
+#   executable; modify it to invoke our `codo.sh` script instead.
 # * Download and extract `appimagetool`.
 # * Use it to package everything back into an AppImage at the original location
 #   on disk.
@@ -59,7 +59,7 @@ fi
 
 # The second argument can optionally be used if CI is building for a
 # non-standard release channel. If so, the CI job should pass the executable
-# name for Pulsar — e.g., `pulsar-next` for the `next` channel.
+# name for Codo — e.g., `codo-next` for the `next` channel.
 SCRIPT_NAME="${2:pulsar}"
 
 echo "Architecture is: ${APPIMAGE_ARCH}"
@@ -88,12 +88,12 @@ mv AppRun AppRun.old
 rm -f AppRun
 
 # Next we'll use `awk` to replace the reference to BIN in `AppRun` so that it
-# points to `pulsar.sh` rather than the `pulsar` executable.
+# points to `codo.sh` rather than the `codo` executable.
 echo "Making new AppRun…"
-if [ $SCRIPT_NAME == "pulsar-next" ]; then
-  awk '{sub(/BIN=(.*?)/,"BIN=\"$APPDIR/resources/pulsar-next.sh\""); print}' AppRun.old > AppRun
+if [ $SCRIPT_NAME == "codo-next" ]; then
+  awk '{sub(/BIN=(.*?)/,"BIN=\"$APPDIR/resources/codo-next.sh\""); print}' AppRun.old > AppRun
 else
-  awk '{sub(/BIN=(.*?)/,"BIN=\"$APPDIR/resources/pulsar.sh\""); print}' AppRun.old > AppRun
+  awk '{sub(/BIN=(.*?)/,"BIN=\"$APPDIR/resources/codo.sh\""); print}' AppRun.old > AppRun
 fi
 chmod a+x AppRun
 

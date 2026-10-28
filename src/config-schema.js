@@ -105,7 +105,7 @@ const configSchema = {
           type: 'string'
         },
         description:
-          'Names of UI and syntax themes which will be used when Pulsar starts.'
+          'Names of UI and syntax themes which will be used when Codo starts.'
       },
       audioBeep: {
         type: 'boolean',
@@ -460,6 +460,13 @@ const configSchema = {
     type: 'object',
     // These settings are used in scoped fashion only. No defaults.
     properties: {
+      luauInlayHints: {
+        type: 'boolean',
+        default: true,
+        title: 'Luau Inlay Hints',
+        description:
+          'Show lightweight inline type hints in Luau files, similar to Visual Studio Code.'
+      },
       commentStart: {
         type: ['string', 'null']
       },

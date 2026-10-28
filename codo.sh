@@ -14,7 +14,7 @@ fi
 ATOM_BASE_NAME=$(basename $0)
 ATOM_BASE_NAME=${ATOM_BASE_NAME%.*}
 case $ATOM_BASE_NAME in
-  pulsar-next)
+  codo-next)
     CHANNEL=next
     ;;
   *)
@@ -120,10 +120,10 @@ if [ $OS == 'Mac' ]; then
   fi
   ATOM_APP="$(dirname "$(dirname "$(dirname "$SCRIPT")")")"
 
-  # If this is a `pulsar.sh` from a built version of Pulsar, then `$ATOM_APP`
+  # If this is a `codo.sh` from a built version of Codo, then `$ATOM_APP`
   # should now be the path to the user's instance of Pulsar.app.
   if [[ "$ATOM_APP" == . || "$ATOM_APP" != *".app" ]]; then
-    # This is a `pulsar.sh` that's in the source code of Pulsar or has been
+    # This is a `codo.sh` that's in the source code of Codo or has been
     # copied to a location outside of the app (instead of symlinked). We'll try
     # another tactic.
     unset ATOM_APP
@@ -201,7 +201,7 @@ elif [ $OS == 'Linux' ]; then
   # * `ATOM_APP_NAME` will refer to the human-readable app name (“Pulsar” or
   #   “PulsarNext”)
   # * `ATOM_EXECUTABLE_NAME` will refer to the executable we must run to launch
-  #   it (`pulsar` or `pulsar-next`)
+  #   it (`codo` or `codo-next`)
 
   ATOM_EXECUTABLE_NAME=$ATOM_BASE_NAME
   if [ "$CHANNEL" == 'next' ]; then
@@ -223,7 +223,7 @@ elif [ $OS == 'Linux' ]; then
       SCRIPT="$0"
     fi
 
-    # The `pulsar.sh` file lives one directory deeper than the root directory
+    # The `codo.sh` file lives one directory deeper than the root directory
     # that contains the `pulsar` binary.
     ATOM_APP="$(dirname "$(dirname "$SCRIPT")")"
     PULSAR_PATH="$(realpath "$ATOM_APP")"
@@ -256,7 +256,7 @@ elif [ $OS == 'Linux' ]; then
   # same convention as this script; that's how PPM itself knows which release
   # channel it's using.
   case $ATOM_BASE_NAME in
-    pulsar-next)
+    codo-next)
       PPM_EXECUTABLE_NAME="ppm-next"
       ;;
     *)

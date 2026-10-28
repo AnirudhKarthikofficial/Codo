@@ -1,15 +1,15 @@
 {
-  "name": "pulsar",
+  "name": "codo",
   "author": "Pulsar-Edit <admin@pulsar-edit.dev>",
   "productName": "Codo",
   "version": "1.132.1-dev",
   "description": "A Community-led Hyper-Hackable Text Editor",
   "branding": {
-    "id": "pulsar",
+    "id": "codo",
     "name": "Codo",
-    "urlWeb": "https://pulsar-edit.dev/",
-    "urlGH": "https://github.com/pulsar-edit",
-    "urlForum": "https://github.com/orgs/pulsar-edit/discussions"
+    "urlWeb": "https://github.com/AnirudhKarthikofficial/Codo",
+    "urlGH": "https://github.com/AnirudhKarthikofficial/Codo",
+    "urlForum": "https://github.com/AnirudhKarthikofficial/Codo/discussions"
   },
   "main": "./src/main-process/main.js",
   "repository": {
@@ -109,6 +109,7 @@
     "language-hyperlink": "file:packages/language-hyperlink",
     "language-java": "file:packages/language-java",
     "language-javascript": "file:packages/language-javascript",
+    "language-luau": "file:packages/language-luau",
     "language-json": "file:packages/language-json",
     "language-less": "file:packages/language-less",
     "language-make": "file:packages/language-make",
@@ -265,6 +266,7 @@
     "language-hyperlink": "file:./packages/language-hyperlink",
     "language-java": "file:./packages/language-java",
     "language-javascript": "file:./packages/language-javascript",
+    "language-luau": "file:./packages/language-luau",
     "language-json": "file:./packages/language-json",
     "language-less": "file:./packages/language-less",
     "language-make": "file:./packages/language-make",

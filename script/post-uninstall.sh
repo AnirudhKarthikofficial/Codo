@@ -8,7 +8,7 @@ then
 fi
 
 case $executable in
-  pulsar-next)
+  codo-next)
     ppm_executable=ppm-next
     ;;
   *)

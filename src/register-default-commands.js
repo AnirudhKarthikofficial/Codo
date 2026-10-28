@@ -3,6 +3,12 @@ const Grim = require('grim');
 
 module.exports = function({commandRegistry, commandInstaller, config, notificationManager, project, clipboard}) {
   commandRegistry.add('atom-workspace', {
+    'codo:toggle-luau-inlay-hints': function() {
+      return config.set('editor.luauInlayHints', !config.get('editor.luauInlayHints'));
+    },
+    'codo:open-themes': function() {
+      return atom.workspace.open('atom://config/themes');
+    },
     'pane:show-next-recently-used-item': function() {
       return this.getModel().getActivePane().activateNextRecentlyUsedItem();
     },

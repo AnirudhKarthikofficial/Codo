@@ -45,13 +45,13 @@ set PPM_NAME=
 REM Use the name of the executable to infer a release channel.
 set ATOM_BASE_NAME=%~n0
 
-if "%ATOM_BASE_NAME%"=="pulsar-next" (
+if "%ATOM_BASE_NAME%"=="codo-next" (
   set ATOM_CHANNEL=next
   set EXE_NAME=PulsarNext
   set PPM_NAME=ppm-next
 )
 
-if "%ATOM_BASE_NAME%"=="pulsar" (
+if "%ATOM_BASE_NAME%"=="codo" (
   set ATOM_CHANNEL=stable
   set EXE_NAME=Pulsar
   set PPM_NAME=ppm
