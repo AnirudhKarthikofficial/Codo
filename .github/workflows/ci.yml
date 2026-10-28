@@ -60,6 +60,17 @@ jobs:
 
       - name: Smoke test - editor window starts
         run: |
-          CODO_BENCH=/tmp/bench.json timeout 180 xvfb-run -a node_modules/.bin/electron --no-sandbox --disable-gpu . -f || true
+          rm -f /tmp/bench.json
+          CODO_BENCH=/tmp/bench.json xvfb-run -a node_modules/.bin/electron --no-sandbox --disable-gpu . -f &
+          APP_PID=$!
+          for _ in $(seq 1 180); do
+            test -s /tmp/bench.json && break
+            if ! kill -0 "$APP_PID" 2>/dev/null; then
+              break
+            fi
+            sleep 1
+          done
           test -s /tmp/bench.json
+          kill "$APP_PID" 2>/dev/null || true
+          wait "$APP_PID" || true
           node -e 'const d=JSON.parse(require("fs").readFileSync("/tmp/bench.json"));console.log("startup ms:",d.m[d.m.length-1].time,"packages:",d.p.length)'

@@ -1,0 +1,57 @@
+'scopeName': 'source.luau'
+'name': 'Luau'
+'fileTypes': [
+  'luau'
+  'lua'
+]
+'firstLineMatch': '^#!.*\\b(lua|luau)'
+'patterns': [
+  {
+    'name': 'comment.line.double-dash.luau'
+    'match': '--.*$'
+  }
+  {
+    'name': 'string.quoted.double.luau'
+    'begin': '"'
+    'end': '"'
+    'patterns': [
+      { 'match': '\\\\.', 'name': 'constant.character.escape.luau' }
+    ]
+  }
+  {
+    'name': 'string.quoted.single.luau'
+    'begin': "'"
+    'end': "'"
+    'patterns': [
+      { 'match': '\\\\.', 'name': 'constant.character.escape.luau' }
+    ]
+  }
+  {
+    'name': 'constant.numeric.luau'
+    'match': '\\b(0[xX][0-9a-fA-F]+|\\d+(?:\\.\\d+)?)\\b'
+  }
+  {
+    'name': 'keyword.control.luau'
+    'match': '\\b(and|break|continue|do|else|elseif|end|for|function|if|in|local|not|or|repeat|return|then|until|while)\\b'
+  }
+  {
+    'name': 'storage.type.luau'
+    'match': '\\b(type|export|typeof|declare|global)\\b'
+  }
+  {
+    'name': 'constant.language.luau'
+    'match': '\\b(true|false|nil)\\b'
+  }
+  {
+    'name': 'entity.name.function.luau'
+    'match': '\\b(?:function\\s+|local\\s+function\\s+)([A-Za-z_]\\w*)'
+  }
+  {
+    'name': 'variable.language.self.luau'
+    'match': '\\bself\\b'
+  }
+  {
+    'name': 'support.function.library.luau'
+    'match': '\\b(assert|error|ipairs|next|pairs|pcall|print|require|select|setmetatable|tonumber|tostring|type|warn)\\b'
+  }
+]

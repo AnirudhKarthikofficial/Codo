@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Install `resources/pulsar.sh` to `/usr/bin/pulsar`.
+# Install `resources/codo.sh` to `/usr/bin/codo`.
 FILESOURCE='/opt/${sanitizedProductName}/resources/${executable}.sh'
 FILEDEST='/usr/bin/${executable}'
 
@@ -12,7 +12,7 @@ cp "$FILESOURCE" "$FILEDEST"
 
 # Find the right binary name for `ppm`, then install it to `/usr/bin/ppm`.
 case $executable in
-  pulsar-next)
+  codo-next)
     ppm_executable=ppm-next
     ;;
   *)

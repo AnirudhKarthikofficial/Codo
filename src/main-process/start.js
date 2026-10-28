@@ -110,7 +110,7 @@ module.exports = function start(resourcePath, devResourcePath, startTime) {
     return;
   }
 
-  let appUserModelId = 'dev.pulsar-edit.pulsar.' + process.arch;
+  let appUserModelId = 'com.personal.codo.' + process.arch;
 
   // If the release channel is not stable, we append it to the app user model id.
   // This allows having the different release channels as separate items in the taskbar.
