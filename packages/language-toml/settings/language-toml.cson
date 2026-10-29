@@ -1,5 +1,0 @@
-'.source.toml':
-  'editor':
-    'commentStart': '# '
-    'commentDelimiters':
-      'line': '#'

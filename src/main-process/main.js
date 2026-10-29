@@ -21,7 +21,7 @@ function isAtomRepoPath(repoPath) {
   if (fs.statSyncNoException(packageJsonPath)) {
     try {
       let packageJson = CSON.readFileSync(packageJsonPath);
-      return packageJson.name === 'atom';
+      return packageJson.name === 'codo' || packageJson.name === 'atom';
     } catch (e) {
       return false;
     }
