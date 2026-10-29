@@ -21,7 +21,9 @@ function buildBundledPackagesMetadata(packageJSON) {
     const packageMetadataPath = path.join(packagePath, 'package.json');
     const packageMetadata = JSON.parse(fs.readFileSync(packageMetadataPath, 'utf8'));
     const packageReadmePath = path.join(packagePath, 'README.md');
-    packageMetadata.readme = fs.readFileSync(packageReadmePath, 'utf8').toString();
+    packageMetadata.readme = fs.existsSync(packageReadmePath)
+      ? fs.readFileSync(packageReadmePath, 'utf8').toString()
+      : '';
     normalizePackageData(
       packageMetadata,
       msg => {

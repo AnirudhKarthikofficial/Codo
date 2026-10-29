@@ -1,0 +1,12 @@
+{
+  "name": "language-luau",
+  "version": "1.0.0",
+  "description": "Luau language support for Codo",
+  "main": "lib/main",
+  "engines": {
+    "atom": "*",
+    "node": ">=16"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/AnirudhKarthikofficial/Codo"
+}
