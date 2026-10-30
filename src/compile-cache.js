@@ -123,6 +123,7 @@ function readCachedJavaScript(relativeCachePath) {
 
 function writeCachedJavaScript(relativeCachePath, code) {
   const cachePath = path.join(cacheDirectory, relativeCachePath);
+  fs.makeTreeSync(path.dirname(cachePath));
   fs.writeFileSync(cachePath, code, 'utf8');
 }
 

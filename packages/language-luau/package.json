@@ -7,5 +7,6 @@
     "atom": "*",
     "node": ">=16"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "repository": "https://github.com/AnirudhKarthikofficial/Codo"
 }

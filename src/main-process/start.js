@@ -80,8 +80,8 @@ module.exports = function start(resourcePath, devResourcePath, startTime) {
   if (shouldStartCrashReporter) {
     console.log("Starting crash reporter; crash reports will be saved to", app.getPath('crashDumps'))
     crashReporter.start({
-      productName: 'Pulsar',
-      companyName: 'Pulsar-Edit',
+      productName: 'Codo',
+      companyName: 'Codo-Edit',
       submitURL: '',
       uploadToServer: false,
       ignoreSystemCrashHandler: false,

@@ -689,24 +689,24 @@ module.exports = class AtomApplication extends EventEmitter {
     });
 
     this.on('application:open-documentation', () =>
-      shell.openExternal('https://pulsar-edit.dev/docs/')
+      shell.openExternal('https://github.com/AnirudhKarthikofficial/Codo#readme')
     );
     this.on('application:open-discussions', () =>
-      shell.openExternal('https://github.com/orgs/pulsar-edit/discussions')
+      shell.openExternal('https://github.com/AnirudhKarthikofficial/Codo/discussions')
     );
     this.on('application:open-faq', () =>
-      shell.openExternal('https://pulsar-edit.dev/docs/launch-manual/sections/faq/')
+      shell.openExternal('https://github.com/AnirudhKarthikofficial/Codo/wiki')
     );
     this.on('application:open-terms-of-use', () =>
-      shell.openExternal('https://atom.io/terms') //TODO: This needs to be updated for when we have our own published on the site
+      shell.openExternal('https://github.com/AnirudhKarthikofficial/Codo/blob/main/LICENSE.md')
     );
     this.on('application:report-issue', () =>
       shell.openExternal(
-        'https://github.com/pulsar-edit/pulsar/issues/new/choose'
+        'https://github.com/AnirudhKarthikofficial/Codo/issues/new/choose'
       )
     );
     this.on('application:search-issues', () =>
-      shell.openExternal('https://github.com/pulsar-edit/pulsar/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc')
+      shell.openExternal('https://github.com/AnirudhKarthikofficial/Codo/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc')
     );
 
     if (process.platform === 'darwin') {
@@ -777,7 +777,7 @@ module.exports = class AtomApplication extends EventEmitter {
         const window = this.focusedWindow();
         if (window) window.minimize();
       });
-      this.on('application:zoom', function () {
+      this.on('application:zoom', () => {
         const window = this.focusedWindow();
         if (window) window.maximize();
       });
@@ -1078,7 +1078,7 @@ module.exports = class AtomApplication extends EventEmitter {
         'set-user-settings',
         (window, settings, filePath) => {
           if (!this.quitting) {
-            return ConfigFile.at(filePath || this.configFilePath).update(
+            return ConfigFile.at(filePath || this.configFile.path).update(
               JSON.parse(settings)
             );
           }
@@ -1306,14 +1306,14 @@ module.exports = class AtomApplication extends EventEmitter {
   }
 
   atomWindowForBrowserWindow(browserWindow) {
-    return this.getAllWindows().find(
+    return this.windowStack.getLastFocusedWindow(
       atomWindow => atomWindow.browserWindow === browserWindow
     );
   }
 
   // Public: Returns the currently focused {AtomWindow} or undefined if none.
   focusedWindow() {
-    return this.getAllWindows().find(window => window.isFocused());
+    return this.windowStack.getLastFocusedWindow(window => window.isFocused());
   }
 
   // Get the platform-specific window offset for new windows.
